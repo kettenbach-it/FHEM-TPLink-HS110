@@ -3,12 +3,29 @@
 # Command Line Tool for TP-Link HS-100/110 wifi controlled power outlets
 # Copyright: Volker Kettenbach, 2016
 # volker@kettenbach-it.de
+#
+# This implements many commands but not all.
+# The program is focused on querying most of the data the HS100/110 does provide.
+# Tough it can only turn it on and off and enable/disabled the nightmode. 
+# You can't set things like schedule, wifi network etc.
+# Use the (not so bad at all) samrtphone app for this.
+# If you want to implement more commands, see tplink-smarthome-commands.txt for a full list
+# and submit your changes as a pull request to my github repository.
+
 
 use strict;
 use warnings;
 use IO::Socket::INET;
+use IO::Socket::Timeout;
 use JSON;
 use Getopt::Simple;
+use Data::Dumper;
+
+my $timeout=3;
+
+my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+$mon++;
+$year += 1900;
 
 
 my %commands = (	'info' 		=> '{"system":{"get_sysinfo":{}}}',
@@ -16,10 +33,16 @@ my %commands = (	'info' 		=> '{"system":{"get_sysinfo":{}}}',
                         'off'		=> '{"system":{"set_relay_state":{"state":0}}}',
                         'cloudinfo'	=> '{"cnCloud":{"get_info":{}}}',
                         'wlanscan'	=> '{"netif":{"get_scaninfo":{"refresh":0}}}',
+                        'wlanscanfresh'	=> '{"netif":{"get_scaninfo":{"refresh":1}}}',
                         'time'		=> '{"time":{"get_time":{}}}',
                         'schedule'	=> '{"schedule":{"get_rules":{}}}',
                         'countdown'	=> '{"count_down":{"get_rules":{}}}',
                         'antitheft'	=> '{"anti_theft":{"get_rules":{}}}',
+			'nightmodeon'	=> '{"system":{"set_led_off":{"off":1}}}',
+			'nightmodeoff'	=> '{"system":{"set_led_off":{"off":0}}}',
+			'realtime'	=> '{"emeter":{"get_realtime":{}}}',
+			'monthstat'	=> '{"emeter":{"get_monthstat":{"year":'.$year.'}}}',
+			'daystat'	=> '{"emeter":{"get_daystat":{"month":'.$mon.',"year":'.$year.'}}}',
                         'reboot'	=> '{"system":{"reboot":{"delay":1}}}'
 );
 my $remote_port = 9999;
@@ -59,6 +82,7 @@ if ($$option{'switch'}{'verbose'}) {
 }
 
 my $command;
+my $jcommand = $commands{$$option{'switch'}{'command'}};
 if (!$$option{'switch'}{'command'}) {
 	$option->helpOptions();
 	print "No command given!";
@@ -70,13 +94,12 @@ if (!$$option{'switch'}{'command'}) {
 		exit (-1);
 	} else {
 		if ($isVerbose){
-			print "Sending command: <".$$option{'switch'}{'command'}.">";
+			print "Sending command: <".$$option{'switch'}{'command'}."> = $jcommand";
 		}
 	}
 	$command = $$option{'switch'}{'command'};
 }
 
-my $jcommand = $commands{$$option{'switch'}{'command'}};
 my $remote_host;
 if (!$$option{'switch'}{'ip'}) {
 	$option->helpOptions();
@@ -122,7 +145,8 @@ my $c = encrypt($jcommand);
 my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
 	PeerPort => $remote_port,
 	Proto    => 'tcp',
-	Type     => SOCK_STREAM ) 
+	Type     => SOCK_STREAM,
+	Timeout  => $timeout) 
 	or die "Couldn't connect to $remote_host:$remote_port: $@\n";
 $socket->send($c);
 my $data;
@@ -130,7 +154,7 @@ $socket->recv($data,1024);
 $socket->close();
 $data = decrypt(substr($data,4));
 my $json = decode_json($data);
-#print "Received answer: " . $data . "\n" if $isVerbose;
+print "Received answer: " . $data. "\n" if $isVerbose;
 
 if ($command eq "on" || $command eq "off") {
 	if ($json->{'system'}->{'set_relay_state'}->{'err_code'} eq "0") {
@@ -172,28 +196,91 @@ if ($command eq "cloudinfo"){
 		print " " . $key . ": " . $json->{'cnCloud'}->{'get_info'}->{$key} . "\n";
 	}
 }
-if ($command eq "antitheft"){
+if ($command eq "realtime"){
 	print "Results: \n";
-	foreach my $key (sort keys %{$json->{'anti_theft'}->{'get_rules'}}) {
-		#if ($key eq "rule_list") {
-		#	foreach my $key2 (sort keys %{$json->{'anti_theft'}->{'get_rules'}->{'rule_list'}}) {
-		#		print " " . $key2 . ": " . $json->{'anti_theft'}->{'get_rules'}->{'rule_list'}->{$key2} . "\n";
-		#	}
-		#} else {
-			print " " . $key . ": " . $json->{'anti_theft'}->{'get_rules'}->{$key} . "\n";
-			#}
+	foreach my $key (sort keys %{$json->{'emeter'}->{'get_realtime'}}) {
+		print " " . $key . ": " . $json->{'emeter'}->{'get_realtime'}->{$key} . "\n";
+	}
+}
+if ($command eq "monthstat"){
+	print "Results: \n";
+	foreach my $key (sort keys @{$json->{'emeter'}->{'get_monthstat'}->{'month_list'}}) {
+		foreach my $key2 ($json->{'emeter'}->{'get_monthstat'}->{'month_list'}[$key]) {
+			print $key2->{'year'}."-".$key2->{'month'}.": " . $key2->{'energy'}."\n";
+		}
+	}
+}
+if ($command eq "daystat"){
+	print "Results: \n";
+	foreach my $key (sort keys @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}}) {
+		foreach my $key2 ($json->{'emeter'}->{'get_daystat'}->{'day_list'}[$key]) {
+			print $key2->{'year'}."-".$key2->{'month'}."-".$key2->{'day'}.": " . $key2->{'energy'}."\n";
+		}
+	}
+}
+if ($command eq "antitheft"){
+	if (scalar (@{$json->{'anti_theft'}->{'get_rules'}->{'rule_list'}}) eq 0) {
+		print "No awaymode set";
+	} else {
+		print "Aaway Mode: \n";
+		foreach my $key (sort keys @{$json->{'anti_theft'}->{'get_rules'}->{'rule_list'}}) {
+			foreach my $key2 ($json->{'anti_theft'}->{'get_rules'}->{'rule_list'}[$key]) {
+				print "Enabled: " if ($key2->{'enable'} eq 1);
+				print "Disabled: " if ($key2->{'enable'} eq 0);
+				print Dumper $key2;
+			}
+		}
 	}
 }
 if ($command eq "countdown"){
-	print "Results: \n";
-	foreach my $key (sort keys @{$json->{'count_down'}->{'get_rules'}->{'rule_list'}}) {
-		print " " . $key . ": " . $json->{'count_down'}->{'get_rules'}->{'rule_list'}->{$key} . "\n";
+	if (scalar (@{$json->{'count_down'}->{'get_rules'}->{'rule_list'}}) eq 0) {
+		print "No timer set";
+	} else {
+		print "Timer: \n";
+		foreach my $key (sort keys @{$json->{'count_down'}->{'get_rules'}->{'rule_list'}}) {
+			foreach my $key2 ($json->{'count_down'}->{'get_rules'}->{'rule_list'}[$key]) {
+				print "Timer enabled: " if ($key2->{'enable'} eq 1);
+				print "Timer disabled: " if ($key2->{'enable'} eq 0);
+				print $key2->{'name'} . " ";
+				print "Delay: " . $key2->{'delay'}."s, ";
+				print "Activity: ";
+				print "On" if ($key2->{'act'} eq 1);
+				print "Off" if ($key2->{'act'} eq 0);
+			}
+		}
 	}
 }
 if ($command eq "schedule"){
-	print "Results: \n";
-	foreach my $key (sort keys %{$json->{'schedule'}->{'get_rules'}}) {
-		print " " . $key . ": " . $json->{'schedule'}->{'get_rules'}->{$key} . "\n";
+	if (scalar (@{$json->{'schedule'}->{'get_rules'}->{'rule_list'}}) eq 0) {
+		print "No schedules";
+	} else {
+		print "Schedules:\n";
+		foreach my $key (sort keys @{$json->{'schedule'}->{'get_rules'}->{'rule_list'}}) {
+			foreach my $key2 ($json->{'schedule'}->{'get_rules'}->{'rule_list'}[$key]) {
+				print "Enabled rule: " if ($key2->{'enable'} eq 1);
+				print "Disabled rule: " if ($key2->{'enable'} eq 0);
+				print $key2->{'name'} . " ";
+				print Dumper $key2;
+			}
+		}
+	}
+}
+if ($command eq "wlanscan" | $command eq "wlanscanfresh"){
+	if (scalar (@{$json->{'netif'}->{'get_scaninfo'}->{'ap_list'}}) eq 0) {
+		print "No networks. Try command <wlanscanfresh>";
+	} else {
+		print "Networks:\n";
+		foreach my $key (sort keys @{$json->{'netif'}->{'get_scaninfo'}->{'ap_list'}}) {
+			foreach my $key2 ($json->{'netif'}->{'get_scaninfo'}->{'ap_list'}[$key]) {
+				print "\t";
+				print "Open" if ($key2->{'key_type'} eq 0);
+				print "WEP" if ($key2->{'key_type'} eq 1);
+				print "WPA" if ($key2->{'key_type'} eq 2);
+				print "WPA2" if ($key2->{'key_type'} eq 3);
+				print "\t";
+				print $key2->{'ssid'} . "\n";
+			}
+		}
 	}
 }
 
