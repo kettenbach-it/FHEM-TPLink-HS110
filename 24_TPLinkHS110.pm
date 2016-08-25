@@ -349,7 +349,7 @@ sub decrypt {
 	Strom, Spannung sowie Leistung durchführt.<br>
 	Dieses Modul erkennt automatisch, welchen Typ Sie verwenden und passt die Readings entsprechend an. 
 	<br><br>
-	Das Modul implementiert nicht alle Funktione der HS100/110.<br>
+	Das Modul implementiert nicht alle Funktionen der HS100/110.<br>
 	Derzeit werden alle für den sinnvollen Betrieb an FHEM benötigten Parameter ausgelesen.<br>
 	Geschrieben werden jedoch nur die Schaltzustände  "An", "Aus" sowie der Nachtmodus An/Aus (Nachtmodus = LEDs der Steckdose ausschalten).<br>
 	Für eine weitergehende Programmierung der Steckdosen wird daher die TP Link App "Kasa" empfohlen, wobei deren<br>
