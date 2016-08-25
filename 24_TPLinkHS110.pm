@@ -297,7 +297,7 @@ sub decrypt {
     <code>define &lt;name&gt; TPLinkHS110 &lt;ip/hostname&gt;</code><br>
     	<br>
 	Defines a TP-Link HS100 or HS110 wifi-controlled switchable power outlet.<br>
-	The diefference between HS100 and HS110 is, that the HS110 provides realtime measurments of<br>
+	The difference between HS100 and HS110 is, that the HS110 provides realtime measurments of<br>
 	power, current and voltage.<br>
 	This module automatically detects the modul defined and adapts the readings accordingly.<br>
 	<br><br>
