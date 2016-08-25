@@ -347,7 +347,7 @@ sub decrypt {
     	Definiert eine TP-Link HS100 oder HS110 schaltbare WLAN-Steckdose. <br>
 	Der Unterschied zwischen der HS100 und HS110 besteht darin, dass die HS110 eine Echtzeit-Messung von <br>
 	Strom, Spannung sowie Leistung durchführt.<br>
-	Diese Modul erkennt automatisch, welchen Typ Sie verwenden und passt die Readings entsprechend an. 
+	Dieses Modul erkennt automatisch, welchen Typ Sie verwenden und passt die Readings entsprechend an. 
 	<br><br>
 	Das Modul implementiert nicht alle Funktione der HS100/110.<br>
 	Derzeit werden alle für den sinnvollen Betrieb an FHEM benötigten Parameter ausgelesen.<br>
