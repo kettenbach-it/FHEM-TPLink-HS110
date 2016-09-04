@@ -17,6 +17,10 @@
 #  Requirements
 #  	Perl Module: IO::Socket::INET
 #  	Perl Module: IO::Socket::Timeout
+#  	
+#  	In recent debian based distributions IO::Socket::Timeout can
+#  	be installed by "apt-get install libio-socket-timeout-perl"
+#  	In older distribution try "cpan IO::Socket::Timeout"
 #
 #  Origin:
 #  https://github.com/kettenbach-it/FHEM-TPLink-HS110
@@ -81,6 +85,10 @@ sub TPLinkHS110_Get($$)
 	InternalTimer(gettimeofday()+$hash->{INTERVAL}, "TPLinkHS110_Get", $hash, 1);
 	$hash->{NEXTUPDATE}=localtime(gettimeofday()+$hash->{INTERVAL});
 
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+	$mon++;
+	$year += 1900;
+
 	my $remote_host = $hash->{HOST};
 	my $remote_port = 9999;
 	my $command = '{"system":{"get_sysinfo":{}}}';
@@ -130,6 +138,30 @@ sub TPLinkHS110_Get($$)
 	if ($json->{'system'}->{'get_sysinfo'}->{'relay_state'} == 1) {
 		readingsBulkUpdate($hash, "state", "on");
 	}
+	# Get Daily Stats
+	my $command = '{"emeter":{"get_daystat":{"month":'.$mon.',"year":'.$year.'}}}';
+	my $c = encrypt($command);
+	my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
+	        PeerPort => $remote_port,
+	        Proto    => 'tcp',
+	        Type     => SOCK_STREAM,
+       		Timeout  => $hash->{TIMEOUT} )
+	        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
+	$socket->send($c);
+	my $data;
+	$socket->recv($data,1024);
+	$socket->close();
+	$data = decrypt(substr($data,4));
+	my $json = decode_json($data);
+	my $total=0;
+	foreach my $key (sort keys @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}}) {
+		foreach my $key2 ($json->{'emeter'}->{'get_daystat'}->{'day_list'}[$key]) {
+			$total = $total+ $key2->{'energy'};
+		}
+	}
+	my $count = @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}};
+	readingsBulkUpdate($hash, "monthly_total", $total);
+	readingsBulkUpdate($hash, "daily_average", $total/$count);
 	readingsEndUpdate($hash, 1);
 	Log3 $hash, 3, "TPLinkHS110: $name Get end";
 }

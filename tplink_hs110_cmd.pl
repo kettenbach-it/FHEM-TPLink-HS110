@@ -211,12 +211,17 @@ if ($command eq "monthstat"){
 	}
 }
 if ($command eq "daystat"){
+	my $total=0;
 	print "Results: \n";
 	foreach my $key (sort keys @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}}) {
 		foreach my $key2 ($json->{'emeter'}->{'get_daystat'}->{'day_list'}[$key]) {
 			print $key2->{'year'}."-".$key2->{'month'}."-".$key2->{'day'}.": " . $key2->{'energy'}."\n";
+			$total = $total+ $key2->{'energy'};
 		}
 	}
+	my $count = @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}};
+	print "Monthly total: $total\n";
+	print "Daily average: " . $total / $count;
 }
 if ($command eq "antitheft"){
 	if (scalar (@{$json->{'anti_theft'}->{'get_rules'}->{'rule_list'}}) eq 0) {
