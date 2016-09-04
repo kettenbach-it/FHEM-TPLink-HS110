@@ -19,7 +19,7 @@
 #  	Perl Module: IO::Socket::Timeout
 #
 #  Origin:
-#  https://github.com/kettenbach-it/FHEM-TPLink-TPLinkHS110110
+#  https://github.com/kettenbach-it/FHEM-TPLink-HS110
 #
 ################################################################
 
