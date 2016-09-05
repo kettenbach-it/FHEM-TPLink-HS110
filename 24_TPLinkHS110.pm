@@ -159,6 +159,7 @@ sub TPLinkHS110_Get($$)
 			$total = $total+ $key2->{'energy'};
 		}
 	}
+	my $count=1;
 	my $count = @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}};
 	readingsBulkUpdate($hash, "monthly_total", $total);
 	readingsBulkUpdate($hash, "daily_average", $total/$count);
