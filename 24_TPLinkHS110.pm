@@ -111,6 +111,12 @@ sub TPLinkHS110_Get($$)
 	foreach my $key (sort keys %{$json->{'system'}->{'get_sysinfo'}}) {
 		readingsBulkUpdate($hash, $key, $json->{'system'}->{'get_sysinfo'}->{$key});
         }
+	if ($json->{'system'}->{'get_sysinfo'}->{'relay_state'} == 0) {
+		readingsBulkUpdate($hash, "state", "off");
+	}
+	if ($json->{'system'}->{'get_sysinfo'}->{'relay_state'} == 1) {
+		readingsBulkUpdate($hash, "state", "on");
+	}
 	# If the device is a HS110, get realtime data:
 	if ($json->{'system'}->{'get_sysinfo'}->{'model'} eq "HS110(EU)") {
 		my $realtimejcommand='{"emeter":{"get_realtime":{}}}';
@@ -131,38 +137,32 @@ sub TPLinkHS110_Get($$)
 			readingsBulkUpdate($hash, $key2, $realtimejson->{'emeter'}->{'get_realtime'}->{$key2});
 		}
 		Log3 $hash, 3, "TPLinkHS110: $name Device is an HS110. Got extra realtime data: $realtimejson->{'emeter'}->{'get_realtime'}->{'power'} Watt, $realtimejson->{'emeter'}->{'get_realtime'}->{'voltage'} Volt, $realtimejson->{'emeter'}->{'get_realtime'}->{'current'} Ampere";
-	}
-	if ($json->{'system'}->{'get_sysinfo'}->{'relay_state'} == 0) {
-		readingsBulkUpdate($hash, "state", "off");
-	}
-	if ($json->{'system'}->{'get_sysinfo'}->{'relay_state'} == 1) {
-		readingsBulkUpdate($hash, "state", "on");
-	}
-	# Get Daily Stats
-	my $command = '{"emeter":{"get_daystat":{"month":'.$mon.',"year":'.$year.'}}}';
-	my $c = encrypt($command);
-	my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
-	        PeerPort => $remote_port,
-	        Proto    => 'tcp',
-	        Type     => SOCK_STREAM,
-       		Timeout  => $hash->{TIMEOUT} )
-	        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
-	$socket->send($c);
-	my $data;
-	$socket->recv($data,1024);
-	$socket->close();
-	$data = decrypt(substr($data,4));
-	my $json = decode_json($data);
-	my $total=0;
-	foreach my $key (sort keys @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}}) {
-		foreach my $key2 ($json->{'emeter'}->{'get_daystat'}->{'day_list'}[$key]) {
-			$total = $total+ $key2->{'energy'};
+		# Get Daily Stats
+		my $command = '{"emeter":{"get_daystat":{"month":'.$mon.',"year":'.$year.'}}}';
+		my $c = encrypt($command);
+		my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
+		        PeerPort => $remote_port,
+		        Proto    => 'tcp',
+		        Type     => SOCK_STREAM,
+	       		Timeout  => $hash->{TIMEOUT} )
+		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
+		$socket->send($c);
+		my $data;
+		$socket->recv($data,1024);
+		$socket->close();
+		$data = decrypt(substr($data,4));
+		my $json = decode_json($data);
+		my $total=0;
+		foreach my $key (sort keys @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}}) {
+			foreach my $key2 ($json->{'emeter'}->{'get_daystat'}->{'day_list'}[$key]) {
+				$total = $total+ $key2->{'energy'};
+			}
 		}
+		my $count=1;
+		my $count = @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}};
+		readingsBulkUpdate($hash, "monthly_total", $total);
+		readingsBulkUpdate($hash, "daily_average", $total/$count);
 	}
-	my $count=1;
-	my $count = @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}};
-	readingsBulkUpdate($hash, "monthly_total", $total);
-	readingsBulkUpdate($hash, "daily_average", $total/$count);
 	readingsEndUpdate($hash, 1);
 	Log3 $hash, 3, "TPLinkHS110: $name Get end";
 }
