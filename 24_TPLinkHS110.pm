@@ -414,3 +414,6 @@ sub decrypt {
 </ul>
 =end html_DE
 
+=item summary Support for TPLink HS100/100 wifi controlled power outlet
+
+=item summary_DE Support für die TPLink HS100/110 WLAN Steckdosen
