@@ -65,7 +65,7 @@ sub TPLinkHS110_Define($$)
   $hash->{INTERVAL}=300;
   $hash->{TIMEOUT}=1;
   $hash->{HOST}=$a[2];
-
+  $attr{$name}{"disable"} = 0;
   # initial request after 2 secs, there timer is set to interval for further update
   InternalTimer(gettimeofday()+2, "TPLinkHS110_Get", $hash, 0);
     
@@ -140,7 +140,7 @@ sub TPLinkHS110_Get($$)
 		# Get Daily Stats
 		my $command = '{"emeter":{"get_daystat":{"month":'.$mon.',"year":'.$year.'}}}';
 		my $c = encrypt($command);
-		my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
+		$socket = IO::Socket::INET->new(PeerAddr => $remote_host,
 		        PeerPort => $remote_port,
 		        Proto    => 'tcp',
 		        Type     => SOCK_STREAM,
@@ -159,7 +159,7 @@ sub TPLinkHS110_Get($$)
 			}
 		}
 		my $count=1;
-		my $count = @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}};
+		$count = @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}};
 		readingsBulkUpdate($hash, "monthly_total", $total);
 		readingsBulkUpdate($hash, "daily_average", $total/$count);
 	}
