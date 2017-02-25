@@ -34,6 +34,7 @@ my %commands = (	'info' 		=> '{"system":{"get_sysinfo":{}}}',
                         'cloudinfo'	=> '{"cnCloud":{"get_info":{}}}',
                         'wlanscan'	=> '{"netif":{"get_scaninfo":{"refresh":0}}}',
                         'wlanscanfresh'	=> '{"netif":{"get_scaninfo":{"refresh":1}}}',
+                        'json' => '', #to be set later
                         'time'		=> '{"time":{"get_time":{}}}',
                         'schedule'	=> '{"schedule":{"get_rules":{}}}',
                         'countdown'	=> '{"count_down":{"get_rules":{}}}',
@@ -68,6 +69,10 @@ my ($options) = {	help	=>	{
 			verbose =>	{
 				verbose	=> 'Be verbose'
 			},
+            json => {
+                type    => '=s',
+                verbose => 'arbitrary json string to send to the TPLink HS100/110 (check tplink-smarthome-commands.txt)'
+            }
 };
 
 
@@ -111,6 +116,10 @@ if (!$$option{'switch'}{'ip'}) {
 		print " to " . $$option{'switch'}{'ip'}.". \n";
 	}
 	$remote_host = $$option{'switch'}{'ip'};
+}
+
+if($command eq 'json') {
+    $jcommand = $$option{'switch'}{'json'};
 }
 
 # Encryption and Decryption of TP-Link Smart Home Protocol
@@ -288,4 +297,3 @@ if ($command eq "wlanscan" | $command eq "wlanscanfresh"){
 		}
 	}
 }
-
