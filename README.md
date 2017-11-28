@@ -1,5 +1,7 @@
 # FHEM-TPLink-HS110
-Perl command line tool and FHEM-module for the TP-Link HS100/HS110 wifi controlled power outlet
+Perl command line tool and FHEM-module for the TP-Link HS100/HS110 wifi controlled power outlet.
+
+In the subfolder "Loxone" you'll find a derived module for Loxone.
 
 ## 24_TPLinkHS110.pm
   <b>Define</b>
