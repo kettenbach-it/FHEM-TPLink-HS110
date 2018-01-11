@@ -48,10 +48,10 @@ sub TPLinkHS110_Initialize($)
   $hash->{DeleteFn}   = "TPLinkHS110_Delete";
   $hash->{AttrFn}     = "TPLinkHS110_Attr";
   $hash->{AttrList}   = "interval ".
-			"disable:0,1 " .
-			"nightmode:on,off " .
-  			"timeout " .
-                        "$readingFnAttributes";
+	  "disable:0,1 " .
+	  "nightmode:on,off " .
+	  "timeout " .
+	  "$readingFnAttributes";
 }
 
 #####################################
@@ -243,7 +243,7 @@ sub TPLinkHS110_Set($$)
 		return;
 	};
 
-        if ($json->{'system'}->{'set_relay_state'}->{'err_code'} eq "0") {
+	if ($json->{'system'}->{'set_relay_state'}->{'err_code'} eq "0") {
 		TPLinkHS110_Get($hash,"");
 		
 	} else {
