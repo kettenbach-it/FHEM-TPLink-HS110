@@ -1,6 +1,8 @@
 ################################################################
 # $Id: 24_TPLinkHS110.pm 15532 2017-12-01 07:31:38Z vk $
 #
+#  Release 2018-11-01 SetExtension
+#
 #  Copyright notice
 #
 #  (c) 2016 Copyright: Volker Kettenbach

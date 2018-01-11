@@ -1,3 +1,5 @@
+Release 2018-11-01 SetExtension
+
 # FHEM-TPLink-HS110
 Perl command line tool and FHEM-module for the TP-Link HS100/HS110 wifi controlled power outlet.
 
