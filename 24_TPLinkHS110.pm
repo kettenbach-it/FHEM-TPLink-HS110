@@ -160,7 +160,15 @@ sub TPLinkHS110_Get($$)
 		foreach my $key2 (sort keys %{$realtimejson->{'emeter'}->{'get_realtime'}}) {
 			readingsBulkUpdate($hash, $key2, $realtimejson->{'emeter'}->{'get_realtime'}->{$key2});
 		}
-		Log3 $hash, 3, "TPLinkHS110: $name Device is an HS110. Got extra realtime data: $realtimejson->{'emeter'}->{'get_realtime'}->{'power'} Watt, $realtimejson->{'emeter'}->{'get_realtime'}->{'voltage'} Volt, $realtimejson->{'emeter'}->{'get_realtime'}->{'current'} Ampere";
+		
+		my $hw_ver = $json->{'system'}->{'get_sysinfo'}->{'hw_ver'};
+		if ($hw_ver eq "1.0") {
+			Log3 $hash, 3, "TPLinkHS110: $name Device is an HS110. Got extra realtime data: $realtimejson->{'emeter'}->{'get_realtime'}->{'power'} Watt, $realtimejson->{'emeter'}->{'get_realtime'}->{'voltage'} Volt, $realtimejson->{'emeter'}->{'get_realtime'}->{'current'} Ampere";
+		# hw_vers >= 2.0
+		} else {	
+			Log3 $hash, 3, "TPLinkHS110: $name Device is an HS110. Got extra realtime data: $realtimejson->{'emeter'}->{'get_realtime'}->{'power_mw'} Milliwatt, $realtimejson->{'emeter'}->{'get_realtime'}->{'voltage_mv'} Millivolt, $realtimejson->{'emeter'}->{'get_realtime'}->{'current_ma'} Milliampere";
+		}
+		
 		# Get Daily Stats
 		my $command = '{"emeter":{"get_daystat":{"month":'.$mon.',"year":'.$year.'}}}';
 		my $c = encrypt($command);
@@ -181,9 +189,16 @@ sub TPLinkHS110_Get($$)
 			my $total=0;
 			foreach my $key (sort keys @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}}) {
 				foreach my $key2 ($json->{'emeter'}->{'get_daystat'}->{'day_list'}[$key]) {
-					$total = $total+ $key2->{'energy'};
-					if ($key2->{'day'} == $mday) {
+					if ($hw_ver eq "1.0") {
+						$total = $total+ $key2->{'energy'};
+						if ($key2->{'day'} == $mday) {
 						readingsBulkUpdate($hash, "daily_total", sprintf("%.3f", $key2->{'energy'}));
+						}
+					} else {
+						$total = $total+ $key2->{'energy_wh'};
+						if ($key2->{'day'} == $mday) {
+						readingsBulkUpdate($hash, "daily_total", sprintf("%.3f", $key2->{'energy_wh'}));
+						}
 					}
 				}
 			}
@@ -346,7 +361,7 @@ sub TPLinkHS110_Attr {
 # Based on https://www.softscheck.com/en/reverse-engineering-tp-link-hs110/
 sub encrypt {
         my $key = 171;
-        my $result = "\0\0\0\0";
+        my $result = "\0\0\0".chr(@string);
         my @string=split(//, $_[0]);
         foreach (@string) {
                 my $a = $key ^ ord($_);
