@@ -167,8 +167,8 @@ sub TPLinkHS110_Get($$)
 			$realtimejson = decode_json($rdata);
 		} or do {
 			Log3 $hash, 2, "TPLinkHS110: $name json-decoding failed. Problem decoding getting realtime data";
-            Log3 $hash, 5, "TPLinkHS110: $name json-raw: $rdata";
-            readingsEndUpdate($hash, 1);
+            	Log3 $hash, 5, "TPLinkHS110: $name json-raw: $rdata";
+            	readingsEndUpdate($hash, 1);
 			return;
 		};
 		
@@ -286,7 +286,7 @@ sub TPLinkHS110_Set($$)
 	eval {
 		$json = decode_json($data);
 	} or do {
-		Log3 $hash, 2, "TPLinkHS110: $name json-decoding failed. Problem decoding getting 2statistical data";
+		Log3 $hash, 2, "TPLinkHS110: $name json-decoding failed. Problem decoding getting statistical data";
 		return;
 	};
 
@@ -375,7 +375,7 @@ sub TPLinkHS110_Attr {
 		eval {
 			$json = decode_json($data);
 		} or do {
-			Log3 $hash, 2, "TPLinkHS110: $name json-decoding failed. Problem decoding getting 3statistical data";
+			Log3 $hash, 2, "TPLinkHS110: $name json-decoding failed. Problem decoding getting statistical data";
 			return;
 		};
 	}
