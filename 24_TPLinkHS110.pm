@@ -438,7 +438,7 @@ sub hwMapping {
 	$hwMap{'2.0'}{'emeter'}{'get_realtime'}{'current_ma'}{'name'}		= 'current';
 	$hwMap{'2.0'}{'emeter'}{'get_realtime'}{'current_ma'}{'factor'}		= 0.001;
 	$hwMap{'2.0'}{'emeter'}{'get_realtime'}{'total_wh'}{'name'}		= 'total';
-	$hwMap{'2.0'}{'emeter'}{'get_realtime'}{'total_wh'}{'factor'}		= 1;
+	$hwMap{'2.0'}{'emeter'}{'get_realtime'}{'total_wh'}{'factor'}		= 0.001;
 	$hwMap{'2.0'}{'emeter'}{'get_realtime'}{'err_code'}{'name'}		= 'err_code';
 	$hwMap{'2.0'}{'emeter'}{'get_realtime'}{'err_code'}{'factor'}		= 1;
 	
