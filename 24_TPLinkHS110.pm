@@ -473,6 +473,34 @@ sub TPLinkHS110__evaljson($$) {
   }
 }
 
+###############################################################################
+#   Test ob JSON-String empfangen wurde
+sub TPLinkHS110__evaljson($$) { 
+  my ($name,$data)= @_;
+  my $hash = $defs{$name};
+  my $json;
+  my $success = 1;
+  my $jerr = "ok";
+  
+  Log3 $name, 5, "$name - Data returned: ". Dumper $data;
+  eval {$json = decode_json($data);} or do 
+  {
+      $success = 0; 
+  };
+        
+  if($@) {
+      $jerr = $@;
+  };
+  
+  readingsBulkUpdate($hash, "decode_json", $jerr);
+  
+  if($success) {
+      return($success,$json);
+  } else {
+      return($success,undef); 
+  }
+}
+
 ######################################################################################
 
 1;
