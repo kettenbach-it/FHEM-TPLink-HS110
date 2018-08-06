@@ -119,28 +119,27 @@ if (!$R::ip) {
 # XOR Autokey Cipher with starting key = 171
 # Based on https://www.softscheck.com/en/reverse-engineering-tp-link-hs110/
 sub encrypt {
-	my $key = 171;
-	my $result = "\0\0\0\0";
-	my @string=split(//, $_[0]);
-	foreach (@string) {
-		my $a = $key ^ ord($_); 
-		$key = $a;
-		$result .= chr($a);
-	}	
-	return $result;
+        my $key = 171;
+		my @string=split(//, $_[0]);
+        my $result = "\0\0\0".chr(@string);
+        foreach (@string) {
+                my $a = $key ^ ord($_);
+                $key = $a;
+                $result .= chr($a);
+        }
+        return $result;
 }
 sub decrypt {
-	my $key = 171;
-	my $result = "";
-	my @string=split(//, $_[0]);
-	foreach (@string) {
-		my $a = $key ^ ord($_);
-		$key = ord($_);
-		$result .= chr($a);
-	}
-	return $result;
+        my $key = 171;
+        my $result = "";
+        my @string=split(//, $_[0]);
+        foreach (@string) {
+                my $a = $key ^ ord($_);
+                $key = ord($_);
+                $result .= chr($a);
+        }
+        return $result;
 }
-
 
 
 my $c = encrypt($jcommand);
