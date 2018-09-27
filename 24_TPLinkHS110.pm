@@ -157,7 +157,7 @@ sub TPLinkHS110_Get($$)
 		$socket->send($rc);
 		my $rdata;
 		my $retval;
-        while ($retval = $socket->recv($data,8192)){}
+        while ($retval .= $socket->recv($data,8192)){}
 		$socket->close();
 		unless( defined $retval) { return undef; }
 		$rdata = decrypt(substr($rdata,4));
@@ -207,7 +207,7 @@ sub TPLinkHS110_Get($$)
 		$socket->send($c);
 		my $data;
         my $retval;
-        while ($retval = $socket->recv($data,8192)){}
+        while ($retval .= $socket->recv($data,8192)){}
 		$socket->close();
 		unless( defined $retval) { return undef; }
 		$data = decrypt(substr($data,4));
@@ -281,7 +281,7 @@ sub TPLinkHS110_Set($$)
 	$socket->send($c);
 	my $data;
     my $retval;
-    while ($retval = $socket->recv($data,8192)){}
+    while ($retval .= $socket->recv($data,8192)){}
 	$socket->close();
 	unless( defined $retval) { return undef; }
     
@@ -372,7 +372,7 @@ sub TPLinkHS110_Attr {
 		$socket->send($c);
 		my $data;
 		my $retval;
-        while ($retval = $socket->recv($data,8192)){}
+        while ($retval .= $socket->recv($data,8192)){}
 		$socket->close();
 		unless( defined $retval) { return undef; }
 		$data = decrypt(substr($data,4));
