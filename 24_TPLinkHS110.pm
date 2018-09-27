@@ -107,7 +107,10 @@ sub TPLinkHS110_Get($$)
 	        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 	$socket->send($c);
 	my $data;
-	my $retval = $socket->recv($data,8192);
+	my $retval;
+	while ($retval = $socket->recv($data,8192)){
+		$retval .= $retval;
+	}
 	$socket->close();
 	unless( defined $retval) { return undef; }
 	
@@ -155,7 +158,10 @@ sub TPLinkHS110_Get($$)
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 		$socket->send($rc);
 		my $rdata;
-		$retval = $socket->recv($rdata,8192);
+		my $retval;
+        while ($retval = $socket->recv($data,8192)){
+            $retval .= $retval;
+        }
 		$socket->close();
 		unless( defined $retval) { return undef; }
 		$rdata = decrypt(substr($rdata,4));
@@ -204,7 +210,10 @@ sub TPLinkHS110_Get($$)
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 		$socket->send($c);
 		my $data;
-		$retval = $socket->recv($data,8192);
+        my $retval;
+        while ($retval = $socket->recv($data,8192)){
+            $retval .= $retval;
+        }
 		$socket->close();
 		unless( defined $retval) { return undef; }
 		$data = decrypt(substr($data,4));
@@ -277,7 +286,10 @@ sub TPLinkHS110_Set($$)
 	        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 	$socket->send($c);
 	my $data;
-	my $retval = $socket->recv($data,8192);
+    my $retval;
+    while ($retval = $socket->recv($data,8192)){
+        $retval .= $retval;
+    }
 	$socket->close();
 	unless( defined $retval) { return undef; }
     
@@ -367,7 +379,10 @@ sub TPLinkHS110_Attr {
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 		$socket->send($c);
 		my $data;
-		my $retval = $socket->recv($data,8192);
+		my $retval;
+        while ($retval = $socket->recv($data,8192)){
+            $retval .= $retval;
+        }
 		$socket->close();
 		unless( defined $retval) { return undef; }
 		$data = decrypt(substr($data,4));
