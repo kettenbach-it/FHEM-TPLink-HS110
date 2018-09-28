@@ -106,11 +106,13 @@ sub TPLinkHS110_Get($$)
        		Timeout  => $hash->{TIMEOUT} )
 	        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 	$socket->send($c);
-	my $data;
-	my $retval;
-	while ($socket->recv($data,8192)){
-        $data .= $data;
-    }
+    my $retval;
+    my $data;
+    my $buf="";
+    do {
+        $retval = $socket->recv($buf,8192);
+        $data .= $buf;
+    } while ($retval);
 	$socket->close();
 	unless( defined $retval) { return undef; }
 	
@@ -157,11 +159,11 @@ sub TPLinkHS110_Get($$)
 	       		Timeout  => $hash->{TIMEOUT} )
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 		$socket->send($rc);
-		my $rdata;
-		my $retval;
-        while ($socket->recv($data,8192)){
-            $data .= $data;
-        }
+        my $rdata;
+        do {
+            $retval = $socket->recv($buf,8192);
+            $rdata .= $buf;
+        } while ($retval);
 		$socket->close();
 		unless( defined $retval) { return undef; }
 		$rdata = decrypt(substr($rdata,4));
@@ -209,11 +211,11 @@ sub TPLinkHS110_Get($$)
 	       		Timeout  => $hash->{TIMEOUT} )
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 		$socket->send($c);
-		my $data;
-        my $retval;
-        while ($socket->recv($data,8192)){
-            $data .= $data;
-        }
+        $buf="";
+        do {
+            $retval = $socket->recv($buf,8192);
+            $data .= $buf;
+        } while ($retval);
 		$socket->close();
 		unless( defined $retval) { return undef; }
 		$data = decrypt(substr($data,4));
@@ -285,11 +287,13 @@ sub TPLinkHS110_Set($$)
        		Timeout  => $hash->{TIMEOUT})
 	        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 	$socket->send($c);
-	my $data;
     my $retval;
-    while ($socket->recv($data,8192)){
-        $data .= $data;
-    }
+    my $data;
+    my $buf="";
+    do {
+        $retval = $socket->recv($buf,8192);
+        $data .= $buf;
+    } while ($retval);
 	$socket->close();
 	unless( defined $retval) { return undef; }
     
@@ -378,11 +382,13 @@ sub TPLinkHS110_Attr {
 	       		Timeout  => $hash->{TIMEOUT} )
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 		$socket->send($c);
-		my $data;
-		my $retval;
-        while ($socket->recv($data,8192)){
-            $data .= $data;
-        }
+        my $retval;
+        my $data;
+        my $buf="";
+        do {
+            $retval = $socket->recv($buf,8192);
+            $data .= $buf;
+        } while ($retval);
 		$socket->close();
 		unless( defined $retval) { return undef; }
 		$data = decrypt(substr($data,4));
