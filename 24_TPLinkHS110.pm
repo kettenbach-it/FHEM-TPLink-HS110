@@ -254,6 +254,7 @@ sub TPLinkHS110_Get($$)
 			return;       
         }
 	}
+    Log3 $hash, 3, "TPLinkHS110: $name Updating readings";
 	readingsEndUpdate($hash, 1);
 	Log3 $hash, 3, "TPLinkHS110: $name Get end";
 }
