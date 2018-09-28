@@ -384,7 +384,6 @@ sub TPLinkHS110_Attr {
         my $data;
         $data = <$socket>;
 		$socket->close();
-		unless( defined $retval) { return undef; }
 		$data = decrypt(substr($data,4));
 		my $json;
 		eval {
