@@ -105,7 +105,7 @@ sub TPLinkHS110_Get($$)
 	        Type     => SOCK_STREAM,
        		Timeout  => $hash->{TIMEOUT} )
 	        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
-	$socket->send($c);
+	$socket->write($c);
     my $retval;
     my $data;
     my $buf="";
@@ -158,7 +158,7 @@ sub TPLinkHS110_Get($$)
 		        Type     => SOCK_STREAM,
 	       		Timeout  => $hash->{TIMEOUT} )
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
-		$socket->send($rc);
+		$socket->write($rc);
         my $rdata;
         do {
             $retval = $socket->read($buf,8192);
@@ -212,7 +212,7 @@ sub TPLinkHS110_Get($$)
 		        Type     => SOCK_STREAM,
 	       		Timeout  => $hash->{TIMEOUT} )
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
-		$socket->send($c);
+		$socket->write($c);
         $buf="";
         do {
             $retval = $socket->read($buf,8192);
@@ -295,7 +295,7 @@ sub TPLinkHS110_Set($$)
 	        Type     => SOCK_STREAM,
        		Timeout  => $hash->{TIMEOUT})
 	        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
-	$socket->send($c);
+	$socket->write($c);
     my $retval;
     my $data;
     my $buf="";
@@ -390,7 +390,7 @@ sub TPLinkHS110_Attr {
 		        Type     => SOCK_STREAM,
 	       		Timeout  => $hash->{TIMEOUT} )
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
-		$socket->send($c);
+		$socket->write($c);
         my $retval;
         my $data;
         my $buf="";

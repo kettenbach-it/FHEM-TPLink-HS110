@@ -149,7 +149,7 @@ my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
 	Type     => SOCK_STREAM,
 	Timeout  => $timeout) 
 	or die "Couldn't connect to $remote_host:$remote_port: $@\n";
-$socket->send($c);
+$socket->write($c);
 my $data;
 $socket->read($data,8192);
 $socket->close();
