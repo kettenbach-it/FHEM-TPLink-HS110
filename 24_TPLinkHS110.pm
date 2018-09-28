@@ -249,9 +249,11 @@ sub TPLinkHS110_Get($$)
 			if ($count) { readingsBulkUpdate($hash, "daily_average", $total/$count)};
             Log3 $hash, 1, "TPLinkHS110: $name: Daystat updated";
         } else {
-            readingsEndUpdate($hash, 1);
             Log3 $hash, 1, "TPLinkHS110: $name Error updating daystat. Success: " . $success . ", json: " . $json;
-			return;       
+            Log3 $hash, 3, "TPLinkHS110: $name Updating readings";
+            readingsEndUpdate($hash, 1);
+            Log3 $hash, 3, "TPLinkHS110: $name Get end";
+			return;
         }
 	}
     Log3 $hash, 3, "TPLinkHS110: $name Updating readings";
