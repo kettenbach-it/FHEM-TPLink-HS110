@@ -221,7 +221,9 @@ sub TPLinkHS110_Get($$)
 		$socket->close();
 		unless( defined $retval) { return undef; }
 		$data = decrypt(substr($data,4));
-        Log3 $hash, 3, "TPLinkHS110: $name Ppdating daystat. json: " . $json;
+
+        Log3 $hash, 3, "TPLinkHS110: $name Updating daystat. Data: " . $data;
+
         ($success,$json) = TPLinkHS110__evaljson($name,$data);
         if($success && $json) {
 			my $total=0;
