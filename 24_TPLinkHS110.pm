@@ -178,7 +178,7 @@ sub TPLinkHS110_Get($$)
             readingsEndUpdate($hash, 1);
 			return; 
 		} else {
-            Log3 $hash, 1, "TPLinkHS110: $name: Realtime data updated";
+            Log3 $hash, 1, "TPLinkHS110: $name Realtime data updated";
         }
 		
 		my %emeterReadings = ();
@@ -248,7 +248,7 @@ sub TPLinkHS110_Get($$)
             Log3 $hash, 1, "TPLinkHS110: $name: Daystat updated";
         } else {
             readingsEndUpdate($hash, 1);
-            Log3 $hash, 1, "TPLinkHS110: $name: Error updating daystat";
+            Log3 $hash, 1, "TPLinkHS110: $name Error updating daystat. Success: " . $success . ", json: " . $json;
 			return;       
         }
 	}
