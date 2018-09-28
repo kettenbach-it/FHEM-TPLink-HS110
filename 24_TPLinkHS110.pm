@@ -177,7 +177,9 @@ sub TPLinkHS110_Get($$)
         if(!$success) {
             readingsEndUpdate($hash, 1);
 			return; 
-		}
+		} else {
+            Log3 $hash, 1, "TPLinkHS110: $name: Realtime data updated";
+        }
 		
 		my %emeterReadings = ();
 
@@ -243,8 +245,10 @@ sub TPLinkHS110_Get($$)
 			$count = @{$json->{'emeter'}->{'get_daystat'}->{'day_list'}};
 			readingsBulkUpdate($hash, "monthly_total", $total);
 			if ($count) { readingsBulkUpdate($hash, "daily_average", $total/$count)};
+            Log3 $hash, 1, "TPLinkHS110: $name: Daystat updated";
         } else {
             readingsEndUpdate($hash, 1);
+            Log3 $hash, 1, "TPLinkHS110: $name: Error updating daystat";
 			return;       
         }
 	}
