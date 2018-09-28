@@ -251,13 +251,13 @@ sub TPLinkHS110_Get($$)
         } else {
             Log3 $hash, 1, "TPLinkHS110: $name Error updating daystat. Success: " . $success . ", json: " . $json;
             Log3 $hash, 3, "TPLinkHS110: $name Updating readings";
-            readingsEndUpdate($hash, 1);
+            readingsEndUpdate($hash, 0);
             Log3 $hash, 3, "TPLinkHS110: $name Get end";
 			return;
         }
 	}
     Log3 $hash, 3, "TPLinkHS110: $name Updating readings";
-	readingsEndUpdate($hash, 1);
+	readingsEndUpdate($hash, 0);
 	Log3 $hash, 3, "TPLinkHS110: $name Get end";
 }
 
