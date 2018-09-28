@@ -106,15 +106,11 @@ sub TPLinkHS110_Get($$)
        		Timeout  => $hash->{TIMEOUT} )
 	        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 	$socket->write($c);
-    my $retval;
+    IO::Socket::Timeout->enable_timeouts_on($socket);
+    $socket->read_timeout(.5);
     my $data;
-    my $buf="";
-    do {
-        $retval = $socket->read($buf,8192);
-        $data .= $buf;
-    } while ($retval);
+    $data = <$socket>;
 	$socket->close();
-	unless( defined $retval) { return undef; }
 	
     readingsBeginUpdate($hash);
     $data = decrypt(substr($data,4));
@@ -159,13 +155,11 @@ sub TPLinkHS110_Get($$)
 	       		Timeout  => $hash->{TIMEOUT} )
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 		$socket->write($rc);
+        $socket->write($c);
+        IO::Socket::Timeout->enable_timeouts_on($socket);
+        $socket->read_timeout(.5);
         my $rdata;
-        do {
-            $retval = $socket->read($buf,8192);
-            $rdata .= $buf;
-        } while ($retval);
-		$socket->close();
-		unless( defined $retval) { return undef; }
+        $rdata = <$socket>;
 		$rdata = decrypt(substr($rdata,4));
 
 		if (length($rdata)==0) {
@@ -213,14 +207,11 @@ sub TPLinkHS110_Get($$)
 	       		Timeout  => $hash->{TIMEOUT} )
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 		$socket->write($c);
-        $buf="";
-        $data="";
-        do {
-            $retval = $socket->read($buf,8192);
-            $data .= $buf;
-        } while ($retval);
+        IO::Socket::Timeout->enable_timeouts_on($socket);
+        $socket->read_timeout(.5);
+        my $data;
+        $data = <$socket>;
 		$socket->close();
-		unless( defined $retval) { return undef; }
 		$data = decrypt(substr($data,4));
 
         Log3 $hash, 3, "TPLinkHS110: $name Updating daystat. Data: " . $data;
@@ -297,15 +288,11 @@ sub TPLinkHS110_Set($$)
        		Timeout  => $hash->{TIMEOUT})
 	        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
 	$socket->write($c);
-    my $retval;
+    IO::Socket::Timeout->enable_timeouts_on($socket);
+    $socket->read_timeout(.5);
     my $data;
-    my $buf="";
-    do {
-        $retval = $socket->read($buf,8192);
-        $data .= $buf;
-    } while ($retval);
+    $data = <$socket>;
 	$socket->close();
-	unless( defined $retval) { return undef; }
     
     readingsBeginUpdate($hash);
 	$data = decrypt(substr($data,4));
@@ -391,14 +378,11 @@ sub TPLinkHS110_Attr {
 		        Type     => SOCK_STREAM,
 	       		Timeout  => $hash->{TIMEOUT} )
 		        or return "Couldn't connect to $remote_host:$remote_port: $@\n";
-		$socket->write($c);
-        my $retval;
+        $socket->write($c);
+        IO::Socket::Timeout->enable_timeouts_on($socket);
+        $socket->read_timeout(.5);
         my $data;
-        my $buf="";
-        do {
-            $retval = $socket->read($buf,8192);
-            $data .= $buf;
-        } while ($retval);
+        $data = <$socket>;
 		$socket->close();
 		unless( defined $retval) { return undef; }
 		$data = decrypt(substr($data,4));

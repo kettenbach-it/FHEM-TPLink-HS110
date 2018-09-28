@@ -157,13 +157,10 @@ my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
 	Timeout  => $timeout) 
 	or die "Couldn't connect to $remote_host:$remote_port: $@\n";
 $socket->write($c);
-my $retval;
+IO::Socket::Timeout->enable_timeouts_on($socket);
+$socket->read_timeout(.5);
 my $data;
-my $buf="";
-do {
-    $retval = $socket->read($buf,8192);
-    $data .= $buf;
-} while ($retval);
+$data = <$socket>;
 
 $socket->close();
 $data = decrypt(substr($data,4));
