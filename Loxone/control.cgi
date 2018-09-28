@@ -151,7 +151,7 @@ my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
 	or die "Couldn't connect to $remote_host:$remote_port: $@\n";
 $socket->send($c);
 my $data;
-$socket->recv($data,8192);
+$socket->read($data,8192);
 $socket->close();
 $data = decrypt(substr($data,4));
 print "Received answer: " . $data. "\n" if $isVerbose;

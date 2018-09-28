@@ -110,7 +110,7 @@ sub TPLinkHS110_Get($$)
     my $data;
     my $buf="";
     do {
-        $retval = $socket->recv($buf,8192);
+        $retval = $socket->read($buf,8192);
         $data .= $buf;
     } while ($retval);
 	$socket->close();
@@ -161,7 +161,7 @@ sub TPLinkHS110_Get($$)
 		$socket->send($rc);
         my $rdata;
         do {
-            $retval = $socket->recv($buf,8192);
+            $retval = $socket->read($buf,8192);
             $rdata .= $buf;
         } while ($retval);
 		$socket->close();
@@ -215,7 +215,7 @@ sub TPLinkHS110_Get($$)
 		$socket->send($c);
         $buf="";
         do {
-            $retval = $socket->recv($buf,8192);
+            $retval = $socket->read($buf,8192);
             $data .= $buf;
         } while ($retval);
 		$socket->close();
@@ -300,7 +300,7 @@ sub TPLinkHS110_Set($$)
     my $data;
     my $buf="";
     do {
-        $retval = $socket->recv($buf,8192);
+        $retval = $socket->read($buf,8192);
         $data .= $buf;
     } while ($retval);
 	$socket->close();
@@ -395,7 +395,7 @@ sub TPLinkHS110_Attr {
         my $data;
         my $buf="";
         do {
-            $retval = $socket->recv($buf,8192);
+            $retval = $socket->read($buf,8192);
             $data .= $buf;
         } while ($retval);
 		$socket->close();

@@ -161,7 +161,7 @@ my $retval;
 my $data;
 my $buf="";
 do {
-    $retval = $socket->recv($buf,8192);
+    $retval = $socket->read($buf,8192);
     $data .= $buf;
 } while ($retval);
 
