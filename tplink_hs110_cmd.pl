@@ -127,15 +127,16 @@ if($command eq 'json') {
 # Based on https://www.softscheck.com/en/reverse-engineering-tp-link-hs110/
 sub encrypt {
 	my $key = 171;
-	my $result = "\0\0\0\0";
 	my @string=split(//, $_[0]);
+	my $result = "\0\0\0".chr(@string);
 	foreach (@string) {
-		my $a = $key ^ ord($_); 
+		my $a = $key ^ ord($_);
 		$key = $a;
 		$result .= chr($a);
-	}	
+	}
 	return $result;
 }
+
 sub decrypt {
 	my $key = 171;
 	my $result = "";
@@ -148,8 +149,6 @@ sub decrypt {
 	return $result;
 }
 
-
-
 my $c = encrypt($jcommand);
 my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
 	PeerPort => $remote_port,
@@ -157,9 +156,12 @@ my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
 	Type     => SOCK_STREAM,
 	Timeout  => $timeout) 
 	or die "Couldn't connect to $remote_host:$remote_port: $@\n";
-$socket->send($c);
+$socket->write($c);
+IO::Socket::Timeout->enable_timeouts_on($socket);
+$socket->read_timeout(.5);
 my $data;
-$socket->recv($data,8192);
+$data = <$socket>;
+
 $socket->close();
 $data = decrypt(substr($data,4));
 print "Received answer: " . $data. "\n" if $isVerbose;

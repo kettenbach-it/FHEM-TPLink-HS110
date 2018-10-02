@@ -3,16 +3,7 @@
 # Web tool for TP-Link HS-100/110 wifi controlled power outlets
 # Christian Fenzl 2017 for LoxBerry
 # Based on https://github.com/kettenbach-it/FHEM-TPLink-HS110 from Volker Kettenbach, 2016
-# volker@kettenbach-it.de
 #
-# This implements many commands but not all.
-# The program is focused on querying most of the data the HS100/110 does provide.
-# Tough it can only turn it on and off and enable/disabled the nightmode. 
-# You can't set things like schedule, wifi network etc.
-# Use the (not so bad at all) smartphone app for this.
-# If you want to implement more commands, see tplink-smarthome-commands.txt for a full list
-# and submit your changes as a pull request to my github repository.
-
 
 use strict;
 use warnings;
@@ -33,24 +24,23 @@ $mon++;
 $year += 1900;
 
 
-my %commands = (
-	'info' 		=> '{"system":{"get_sysinfo":{}}}',
-    'on'		=> '{"system":{"set_relay_state":{"state":1}}}',
-    'off'		=> '{"system":{"set_relay_state":{"state":0}}}',
-    'cloudinfo'	=> '{"cnCloud":{"get_info":{}}}',
-    'wlanscan'	=> '{"netif":{"get_scaninfo":{"refresh":0}}}',
-    'wlanscanfresh'	=> '{"netif":{"get_scaninfo":{"refresh":1}}}',
-    'json' => '', #to be set later
-    'time'		=> '{"time":{"get_time":{}}}',
-    'schedule'	=> '{"schedule":{"get_rules":{}}}',
-    'countdown'	=> '{"count_down":{"get_rules":{}}}',
-    'antitheft'	=> '{"anti_theft":{"get_rules":{}}}',
-	'nightmodeon'	=> '{"system":{"set_led_off":{"off":1}}}',
-	'nightmodeoff'	=> '{"system":{"set_led_off":{"off":0}}}',
-	'realtime'	=> '{"emeter":{"get_realtime":{}}}',
-	'monthstat'	=> '{"emeter":{"get_monthstat":{"year":'.$year.'}}}',
-	'daystat'	=> '{"emeter":{"get_daystat":{"month":'.$mon.',"year":'.$year.'}}}',
-    'reboot'	=> '{"system":{"reboot":{"delay":1}}}'
+my %commands = (	'info' 		=> '{"system":{"get_sysinfo":{}}}',
+                        'on'		=> '{"system":{"set_relay_state":{"state":1}}}',
+                        'off'		=> '{"system":{"set_relay_state":{"state":0}}}',
+                        'cloudinfo'	=> '{"cnCloud":{"get_info":{}}}',
+                        'wlanscan'	=> '{"netif":{"get_scaninfo":{"refresh":0}}}',
+                        'wlanscanfresh'	=> '{"netif":{"get_scaninfo":{"refresh":1}}}',
+                        'json' => '', #to be set later
+                        'time'		=> '{"time":{"get_time":{}}}',
+                        'schedule'	=> '{"schedule":{"get_rules":{}}}',
+                        'countdown'	=> '{"count_down":{"get_rules":{}}}',
+                        'antitheft'	=> '{"anti_theft":{"get_rules":{}}}',
+			'nightmodeon'	=> '{"system":{"set_led_off":{"off":1}}}',
+			'nightmodeoff'	=> '{"system":{"set_led_off":{"off":0}}}',
+			'realtime'	=> '{"emeter":{"get_realtime":{}}}',
+			'monthstat'	=> '{"emeter":{"get_monthstat":{"year":'.$year.'}}}',
+			'daystat'	=> '{"emeter":{"get_daystat":{"month":'.$mon.',"year":'.$year.'}}}',
+                        'reboot'	=> '{"system":{"reboot":{"delay":1}}}'
 );
 my $remote_port = 9999;
 my $clist;
@@ -83,6 +73,9 @@ foreach(sort keys %commands) {
 
 
 # my($option) = Getopt::Simple -> new();
+# if (!$option -> getOptions($options, "Usage: $0 [options]") ) {
+	# exit(-1);       # Failure.
+# }
 
 my $isVerbose=0;
 if ($R::verbose)  {
@@ -118,36 +111,35 @@ if (!$R::ip) {
 	$remote_host = $R::ip;
 }
 
-#if($command eq 'json') {
-#    $jcommand = $$option{'switch'}{'json'};
-#}
+# if($command eq 'json') {
+    # $jcommand = $$option{'switch'}{'json'};
+# }
 
 # Encryption and Decryption of TP-Link Smart Home Protocol
 # XOR Autokey Cipher with starting key = 171
 # Based on https://www.softscheck.com/en/reverse-engineering-tp-link-hs110/
 sub encrypt {
-	my $key = 171;
-	my $result = "\0\0\0\0";
-	my @string=split(//, $_[0]);
-	foreach (@string) {
-		my $a = $key ^ ord($_); 
-		$key = $a;
-		$result .= chr($a);
-	}	
-	return $result;
+        my $key = 171;
+		my @string=split(//, $_[0]);
+        my $result = "\0\0\0".chr(@string);
+        foreach (@string) {
+                my $a = $key ^ ord($_);
+                $key = $a;
+                $result .= chr($a);
+        }
+        return $result;
 }
 sub decrypt {
-	my $key = 171;
-	my $result = "";
-	my @string=split(//, $_[0]);
-	foreach (@string) {
-		my $a = $key ^ ord($_);
-		$key = ord($_);
-		$result .= chr($a);
-	}
-	return $result;
+        my $key = 171;
+        my $result = "";
+        my @string=split(//, $_[0]);
+        foreach (@string) {
+                my $a = $key ^ ord($_);
+                $key = ord($_);
+                $result .= chr($a);
+        }
+        return $result;
 }
-
 
 
 my $c = encrypt($jcommand);
@@ -157,9 +149,9 @@ my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
 	Type     => SOCK_STREAM,
 	Timeout  => $timeout) 
 	or die "Couldn't connect to $remote_host:$remote_port: $@\n";
-$socket->send($c);
+$socket->write($c);
 my $data;
-$socket->recv($data,8192);
+$socket->read($data,8192);
 $socket->close();
 $data = decrypt(substr($data,4));
 print "Received answer: " . $data. "\n" if $isVerbose;
@@ -297,9 +289,3 @@ if ($command eq "wlanscan" | $command eq "wlanscanfresh"){
 		}
 	}
 }
-
-sub error
-{
-
-}
-
