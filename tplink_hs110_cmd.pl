@@ -156,9 +156,12 @@ my $socket = IO::Socket::INET->new(PeerAddr => $remote_host,
 	Type     => SOCK_STREAM,
 	Timeout  => $timeout) 
 	or die "Couldn't connect to $remote_host:$remote_port: $@\n";
-$socket->send($c);
+$socket->write($c);
+IO::Socket::Timeout->enable_timeouts_on($socket);
+$socket->read_timeout(.5);
 my $data;
-$socket->recv($data,8192);
+$data = <$socket>;
+
 $socket->close();
 $data = decrypt(substr($data,4));
 print "Received answer: " . $data. "\n" if $isVerbose;
