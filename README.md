@@ -1,4 +1,4 @@
-Release 2018-05-17 HW Version 2.0
+Release 2019-05-31 SendCommand2
 
 # FHEM-TPLink-HS110
 Perl command line tool and FHEM-module for the TP-Link HS100/HS110 wifi controlled power outlet.
@@ -13,7 +13,7 @@ In the subfolder "Loxone" you'll find a derived module for Loxone.
         The difference between HS100 and HS110 is, that the HS110 provides realtime measurments of<br>
         power, current and voltage.<br>
         This module automatically detects the modul defined and adapts the readings accordingly.<br>
-        <br><br>
+        <br>
         This module does not implement all functions of the HS100/110.<br>
         Currently, all parameters relevant for running the outlet under FHEM are processed.<br>
         Writeable are only "On", "Off" and the nightmode (On/Off) (Nightmode: the LEDs of the outlet are switched off).<br>
