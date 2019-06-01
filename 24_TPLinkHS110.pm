@@ -25,7 +25,7 @@
 #  	In older distribution try "cpan IO::Socket::Timeout"
 #
 #  Origin:
-#  https://github.com/kettenbach-it/FHEM-TPLink-HS110
+#  https://gitlab.com/volkerkettenbach/FHEM-TPLink-Kasa
 #
 ################################################################
 
