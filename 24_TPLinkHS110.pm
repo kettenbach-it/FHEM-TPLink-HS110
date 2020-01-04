@@ -175,7 +175,7 @@ sub TPLinkHS110_Get($$) {
 	my $errmsg;
 	my $data;
 
-	my $command = '{"system":{"get_sysinfo":{}}}';
+	my $command = '{"system":{"get_sysinfo":{}},"time":{"get_time":{}}}';
 	($errmsg, $data) = TPLinkHS110_SendCommand($hash, $command);
 	if (defined($errmsg)) {
 		Log3 $hash, 1, "TPLinkHS110: $name Get failed - " . $errmsg; # JV
@@ -239,7 +239,7 @@ sub TPLinkHS110_Get($$) {
 			return;
 		}
 		else {
-			Log3 $hash, 2, "TPLinkHS110: $name Realtime data updated";
+			Log3 $hash, 3, "TPLinkHS110: $name Realtime data updated";
 		}
 
 		my %emeterReadings = ();
@@ -265,6 +265,16 @@ sub TPLinkHS110_Get($$) {
 		Log3 $hash, 3, "TPLinkHS110: $name Device is an HS110. Got extra realtime data: $emeterReadings{'power'} Watt, $emeterReadings{'voltage'} Volt, $emeterReadings{'current'} Ampere";
 
 
+		# Get Time
+		my $remotetime = $json->{'time'}->{'get_time'}->{'year'}."-";
+		$remotetime .= $json->{'time'}->{'get_time'}->{'month'}."-";
+		$remotetime .= $json->{'time'}->{'get_time'}->{'mday'}. " ";
+		$remotetime .= $json->{'time'}->{'get_time'}->{'hour'}.":";
+		$remotetime .= $json->{'time'}->{'get_time'}->{'min'}.":";
+		$remotetime .= $json->{'time'}->{'get_time'}->{'sec'};
+
+		readingsBulkUpdate($hash, "time", $remotetime);
+	
 		# Get Daily Stats
 		$command = '{"emeter":{"get_daystat":{"month":' . $mon . ',"year":' . $year . '}}}';
 		($errmsg, $data) = TPLinkHS110_SendCommand($hash, $command);
@@ -302,7 +312,7 @@ sub TPLinkHS110_Get($$) {
 			if ($hw_ver eq "1.0") {readingsBulkUpdate($hash, "monthly_total", $total);}
 			if ($hw_ver eq "2.0") {readingsBulkUpdate($hash, "monthly_total", $total * 0.001);}
 			if ($count) {readingsBulkUpdate($hash, "daily_average", $total / $count)};
-			Log3 $hash, 2, "TPLinkHS110: $name Daystat updated";
+			Log3 $hash, 3, "TPLinkHS110: $name Daystat updated";
 		}
 		else {
 			Log3 $hash, 1, "TPLinkHS110: $name Error updating daystat. Success: " . $success . ", json: " . $json;
