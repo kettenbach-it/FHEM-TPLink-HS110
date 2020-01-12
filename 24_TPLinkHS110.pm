@@ -234,6 +234,8 @@ sub TPLinkHS110_Get($$) {
 	$remotetime .= $json->{'time'}->{'get_time'}->{'min'}.":";
 	$remotetime .= $json->{'time'}->{'get_time'}->{'sec'};
 
+	readingsBulkUpdate($hash, "time", $remotetime);
+
 	# If the device is a HS110, get realtime data:
 	#  if ( 1 == 0 ) {
 	if ($json->{'system'}->{'get_sysinfo'}->{'model'} eq "HS110(EU)" or $json->{'system'}->{'get_sysinfo'}->{'model'} eq "HS110(UK)") {
@@ -284,8 +286,6 @@ sub TPLinkHS110_Get($$) {
 
 		Log3 $hash, 3, "TPLinkHS110: $name Device is an HS110. Got extra realtime data: $emeterReadings{'power'} Watt, $emeterReadings{'voltage'} Volt, $emeterReadings{'current'} Ampere";
 
-		readingsBulkUpdate($hash, "time", $remotetime);
-	
 		# Get Daily Stats
 		$command = '{"emeter":{"get_daystat":{"month":' . $mon . ',"year":' . $year . '}}}';
 		($errmsg, $data) = TPLinkHS110_SendCommand($hash, $command);
