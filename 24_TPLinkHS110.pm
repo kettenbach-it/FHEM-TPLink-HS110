@@ -214,6 +214,15 @@ sub TPLinkHS110_Get($$) {
 	if ($json->{'system'}->{'get_sysinfo'}->{'relay_state'} == 1) {
 		readingsBulkUpdate($hash, "state", "on");
 	}
+	
+	# Get Time
+	my $remotetime = $json->{'time'}->{'get_time'}->{'year'}."-";
+	$remotetime .= $json->{'time'}->{'get_time'}->{'month'}."-";
+	$remotetime .= $json->{'time'}->{'get_time'}->{'mday'}. " ";
+	$remotetime .= $json->{'time'}->{'get_time'}->{'hour'}.":";
+	$remotetime .= $json->{'time'}->{'get_time'}->{'min'}.":";
+	$remotetime .= $json->{'time'}->{'get_time'}->{'sec'};
+
 	# If the device is a HS110, get realtime data:
 	#  if ( 1 == 0 ) {
 	if ($json->{'system'}->{'get_sysinfo'}->{'model'} eq "HS110(EU)" or $json->{'system'}->{'get_sysinfo'}->{'model'} eq "HS110(UK)") {
@@ -263,15 +272,6 @@ sub TPLinkHS110_Get($$) {
 		}
 
 		Log3 $hash, 3, "TPLinkHS110: $name Device is an HS110. Got extra realtime data: $emeterReadings{'power'} Watt, $emeterReadings{'voltage'} Volt, $emeterReadings{'current'} Ampere";
-
-
-		# Get Time
-		my $remotetime = $json->{'time'}->{'get_time'}->{'year'}."-";
-		$remotetime .= $json->{'time'}->{'get_time'}->{'month'}."-";
-		$remotetime .= $json->{'time'}->{'get_time'}->{'mday'}. " ";
-		$remotetime .= $json->{'time'}->{'get_time'}->{'hour'}.":";
-		$remotetime .= $json->{'time'}->{'get_time'}->{'min'}.":";
-		$remotetime .= $json->{'time'}->{'get_time'}->{'sec'};
 
 		readingsBulkUpdate($hash, "time", $remotetime);
 	
