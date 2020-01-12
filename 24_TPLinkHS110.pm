@@ -206,6 +206,17 @@ sub TPLinkHS110_Get($$) {
 			}
 			$key = $hwMap{$hw_ver}{'system'}{'get_sysinfo'}{$key}{'name'}
 		}
+				
+		# next_action
+		if ($key eq "next_action") {
+			if ($sysinfoValue->{'type'} eq "1" ) {
+				# e.g. 12:34 on
+				$sysinfoValue = sprintf("%02i:%02i %s",int($sysinfoValue->{'schd_sec'} / 60 / 60),int($sysinfoValue->{'schd_sec'} / 60 % 60),($sysinfoValue->{'action'} eq "1" ? ' on' : " off" ));
+			} else {
+				$sysinfoValue = "-None-";
+			}
+		}
+		
 		readingsBulkUpdate($hash, $key, $sysinfoValue);
 	}
 	if ($json->{'system'}->{'get_sysinfo'}->{'relay_state'} == 0) {
