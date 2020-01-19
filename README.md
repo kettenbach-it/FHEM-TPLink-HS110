@@ -1,4 +1,4 @@
-Release 2019-05-31 SendCommand2
+Release 2020-01-19 SendCommand2
 
 # FHEM-TPLink-HS110
 Perl command line tool and FHEM-module for the TP-Link HS100/HS110 wifi controlled power outlet.
