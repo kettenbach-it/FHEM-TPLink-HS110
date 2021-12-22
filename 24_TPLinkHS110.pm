@@ -123,7 +123,7 @@ sub TPLinkHS110_DoBlocking($) {
         Timeout  => $hash->{TIMEOUT}
       )
       or
-      return ( "Couldn't connect to $remote_host:$remote_port: $@\n", undef );
+      return ( $name . "|error|Couldn't connect to remote host (timeout after ". $hash->{TIMEOUT});
     $socket->write($c);
     IO::Socket::Timeout->enable_timeouts_on($socket);
     $socket->read_timeout(2.5);
